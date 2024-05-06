@@ -1,11 +1,15 @@
 #ifndef LAB_6_INCLUDE_GRAPH_H
 #define LAB_6_INCLUDE_GRAPH_H
 
+
 #include <iostream>
 #include <memory>
 #include <vector>
 #include <algorithm>
 #include <unordered_map>
+#include <iterator>
+#include <cfloat>
+
 
 // Обход в ширину
 // Поиск кратчайшего Беллмана-Форда
@@ -29,12 +33,13 @@ public:
 	bool remove_edge(const Vertex& from, const Vertex& to);
 
 	std::vector<Vertex> vertices() const; // получение списка всех вершин
-	std::vector<Edge> edges() const; // получение списка всех рёбер
+	std::vector<Edge> edges(const Vertex& v) const; // получение списка всех рёбер выходящих из вершины
 
 	size_t order() const; //порядок
 	size_t degree(const Vertex& v) const; //степень вершины
 
 	std::vector<Edge> shortest_path(const Vertex& from,	const Vertex& to) const; // поиск кратчайшего пути
+	std::vector<Vertex> walk(const Vertex& start_vertex) const; // обход
 
 
 private:
@@ -42,5 +47,76 @@ private:
 	std::unordered_map < Vertex, std::vector<Edge> > _edges;
 };
 
+template<typename Vertex, typename Distance>
+bool Graph<Vertex, Distance>::has_vertex(const Vertex& v) const {
+	return std::find(_vertices.begin(), _vertices.end(), v) != _vertices.end();
+}
 
+template<typename Vertex, typename Distance>
+void Graph<Vertex, Distance>::add_vertex(const Vertex& v) {
+	if (has_vertex(v)) throw std::invalid_argument("[add_vertex] the vertex already exists");
+	_vertices.push_back(v);
+	//_edges[v] = { };
+}
+
+template<typename Vertex, typename Distance>
+bool Graph<Vertex, Distance>::remove_vertex(const Vertex& v) {
+	auto& it = std::find(_vertices.begin(), _vertices.end(), v);
+	if (it == _vertices.end()) return false;
+	_vertices.erase(v);
+	_edges.erase(v);
+	for (auto& vertex : _vertices) {
+		auto& edges = _edges.at(vertex);
+		edges.erase(std::remove_if(edges.begin(), edges.end(), [v](const Edge& e) {return e.to == v; } edges.end()));
+	}
+	return true;	
+}
+
+template<typename Vertex, typename Distance>
+void Graph<Vertex, Distance>::add_edge(const Vertex& from, const Vertex& to, const Distance& dist) {	
+	if (has_edge({ from, to, dist })) throw std::invalid_argument("[add_edge] the edge already exists");
+	
+	auto& it = _edges.find(from);
+	it->second.push_back({ from, to, dist });
+}
+
+template<typename Vertex, typename Distance>
+bool Graph<Vertex, Distance>::remove_edge(const Edge& e) {
+	if (!has_edge(e)) return false;
+	auto& it = _edges.find(e.from);
+	for (const Edge& edge : it->second) {
+		if (e.to == edge.to && (abs(e.distane - edge.distance) < DBL_EPSILON))		{
+			it->second.erase(edge);
+			return true;
+		}
+	}
+	return false;
+}
+
+template<typename Vertex, typename Distance>
+bool Graph<Vertex, Distance>::has_edge(const Edge& e) const {	
+	auto it = _edges.find(e.from);
+	if (it != _edges.end()) {
+		for (const auto& edge : it->second) {
+			if (e.to == edge.to && (abs(e.distane - edge.distance) < DBL_EPSILON))
+				return true;
+		}
+	}
+	return false;
+}
+
+template<typename Vertex, typename Distance>
+std::vector<Vertex> Graph<Vertex, Distance>::vertices() const { return _vertices; }
+
+template<typename Vertex, typename Distance>
+std::vector<typename Graph<Vertex, Distance>::Edge> Graph<Vertex, Distance>::edges(const Vertex& v) const {
+	if (!has_vertex(v)) throw std::invalid_argument("[edges] there is no such vertex in the graph");
+	std::vector<Edge> exiting_edges;
+
+	auto it = _edges.find(v);
+	if (it != _edges.end()) {
+		exiting_edges = it->second;
+	}
+	return exiting_edges;
+}
 #endif // !LAB_6_INCLUDE_GRAPH_H
