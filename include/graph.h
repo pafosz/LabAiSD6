@@ -19,7 +19,7 @@ class Graph {
 public:
 	struct Edge {
 		Vertex from, to;
-		Distance distane;
+		Distance distance;
 	};
 
 	bool has_vertex(const Vertex& v) const;
@@ -38,8 +38,11 @@ public:
 	size_t order() const; //порядок
 	size_t degree(const Vertex& v) const; //степень вершины
 
-	std::vector<Edge> shortest_path(const Vertex& from,	const Vertex& to) const; // поиск кратчайшего пути
+	std::vector<Edge> shortest_path(const Vertex& from, const Vertex& to) const; // поиск кратчайшего пути
 	std::vector<Vertex> walk(const Vertex& start_vertex) const; // обход
+
+	void print_vertices() const;
+	void print_edges() const;
 
 
 private:
@@ -56,7 +59,7 @@ template<typename Vertex, typename Distance>
 void Graph<Vertex, Distance>::add_vertex(const Vertex& v) {
 	if (has_vertex(v)) throw std::invalid_argument("[add_vertex] the vertex already exists");
 	_vertices.push_back(v);
-	//_edges[v] = { };
+	_edges[v] = { };
 }
 
 template<typename Vertex, typename Distance>
@@ -67,26 +70,26 @@ bool Graph<Vertex, Distance>::remove_vertex(const Vertex& v) {
 	_edges.erase(v);
 	for (auto& vertex : _vertices) {
 		auto& edges = _edges.at(vertex);
-		edges.erase(std::remove_if(edges.begin(), edges.end(), [v](const Edge& e) {return e.to == v; } edges.end()));
+		edges.erase(std::remove_if(edges.begin(), edges.end(), [v](const Edge& e) {return e.to == v; }), edges.end());
 	}
-	return true;	
+	return true;
 }
 
 template<typename Vertex, typename Distance>
-void Graph<Vertex, Distance>::add_edge(const Vertex& from, const Vertex& to, const Distance& dist) {	
+void Graph<Vertex, Distance>::add_edge(const Vertex& from, const Vertex& to, const Distance& dist) {
 	if (has_edge({ from, to, dist })) throw std::invalid_argument("[add_edge] the edge already exists");
-	
-	auto& it = _edges.find(from);
-	it->second.push_back({ from, to, dist });
+
+	auto& edges = _edges[from];
+	edges.push_back({ from, to, dist });
 }
 
 template<typename Vertex, typename Distance>
 bool Graph<Vertex, Distance>::remove_edge(const Edge& e) {
 	if (!has_edge(e)) return false;
-	auto& it = _edges.find(e.from);
-	for (const Edge& edge : it->second) {
-		if (e.to == edge.to && (abs(e.distane - edge.distance) < DBL_EPSILON))		{
-			it->second.erase(edge);
+	auto& edges = _edges.at(e.from);
+	for (const Edge& edge : edges) {
+		if (e.to == edge.to && (abs(e.distance - edge.distance) < DBL_EPSILON)) {
+			edges.erase(edge);
 			return true;
 		}
 	}
@@ -94,14 +97,12 @@ bool Graph<Vertex, Distance>::remove_edge(const Edge& e) {
 }
 
 template<typename Vertex, typename Distance>
-bool Graph<Vertex, Distance>::has_edge(const Edge& e) const {	
-	auto it = _edges.find(e.from);
-	if (it != _edges.end()) {
-		for (const auto& edge : it->second) {
-			if (e.to == edge.to && (abs(e.distane - edge.distance) < DBL_EPSILON))
-				return true;
-		}
+bool Graph<Vertex, Distance>::has_edge(const Edge& e) const {
+	auto& edges = _edges.at(e.from);
+	for (const auto& edge : edges) {
+		if (edge.to == e.to && (abs(e.distance - edge.distance) < DBL_EPSILON)) return true;
 	}
+
 	return false;
 }
 
@@ -111,12 +112,31 @@ std::vector<Vertex> Graph<Vertex, Distance>::vertices() const { return _vertices
 template<typename Vertex, typename Distance>
 std::vector<typename Graph<Vertex, Distance>::Edge> Graph<Vertex, Distance>::edges(const Vertex& v) const {
 	if (!has_vertex(v)) throw std::invalid_argument("[edges] there is no such vertex in the graph");
-	std::vector<Edge> exiting_edges;
 
-	auto it = _edges.find(v);
-	if (it != _edges.end()) {
-		exiting_edges = it->second;
-	}
-	return exiting_edges;
+	auto& edges = _edges.at(v);
+	
+	return edges;
 }
+
+template<typename Vertex, typename Distance>
+void Graph<Vertex, Distance>::print_vertices() const {
+	std::cout << "Vertices: [ ";
+	for (const Vertex& vertex : _vertices) {
+		if (vertex != _vertices.back()) std::cout << vertex << ", ";
+		else std::cout << vertex << " ]";
+	}
+}
+
+template<typename Vertex, typename Distance>
+void Graph<Vertex, Distance>::print_edges() const {
+	std::cout << "Edges: " << std::endl;
+	for (const Vertex& vertex : _vertices) {
+		for (const Edge& edge : _edges.at(vertex)) {
+			std::cout << edge.from << " -> " << edge.to << "(" << edge.distance << ")" << std::endl;
+		}
+	}
+}
+
+
+
 #endif // !LAB_6_INCLUDE_GRAPH_H
