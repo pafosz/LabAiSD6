@@ -51,7 +51,8 @@ public:
 
 	void print_vertices() const;
 	void print_edges() const;
-
+	// дл€ задани€
+	Vertex find_farthest_vertex();
 
 private:
 	std::vector<Vertex> _vertices;
@@ -202,8 +203,7 @@ std::vector<typename Graph<Vertex, Distance>::Edge> Graph<Vertex, Distance>::sho
 	std::vector<Edge> result;
 	Vertex current = end;
 	while (current != start) {
-		auto it = std::find_if(_edges.at(prev[current]).begin(), _edges.at(prev[current]).end(),
-			[&](const Edge& e) { return e.to == current; });
+		auto it = std::find_if(_edges.at(prev[current]).begin(), _edges.at(prev[current]).end(), [&](const Edge& e) { return e.to == current; });
 		result.push_back(*it);
 		current = prev[current];
 	}
@@ -273,6 +273,31 @@ void Graph<Vertex, Distance>::print_edges() const {
 	}
 }
 
+template<typename Vertex, typename Distance>
+Vertex Graph<Vertex, Distance>::find_farthest_vertex() {
+	Vertex farthest_vertex;
+	Distance max_avg_distance = 0;
 
+	for (const auto& vertex : _vertices) {
+		// ¬ычисл€ем среднее рассто€ние от текущей вершины до еЄ соседей
+		Distance avg_distance = 0;
+		size_t num_neighbors = 0;
+		for (const auto& edge : exiting_edges(vertex)) {
+			avg_distance += edge.distance;
+			num_neighbors++;
+		}
+		if (num_neighbors > 0) {
+			avg_distance /= num_neighbors;
+		}
+
+		// ќбновл€ем максимальное среднее рассто€ние и запоминаем текущую вершину
+		if (avg_distance > max_avg_distance) {
+			max_avg_distance = avg_distance;
+			farthest_vertex = vertex;
+		}
+	}
+
+	return farthest_vertex;
+}
 
 #endif // !LAB_6_INCLUDE_GRAPH_H

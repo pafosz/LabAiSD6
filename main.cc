@@ -13,19 +13,57 @@ int main() {
 	G.add_vertex(4);
 	G.add_vertex(5);
 	G.add_vertex(6);
-	G.add_edge(1, 2, 1);
-	G.add_edge(1, 3, 4);
-	G.add_edge(1, 6, 30);
-	G.add_edge(2, 3, 2);
-	G.add_edge(2, 4, 8);
+
+	G.add_edge(1, 2, 2);
+	G.add_edge(2, 1, 2);
+
+	G.add_edge(1, 3, 3);
+	G.add_edge(3, 1, 3);
+
+	G.add_edge(1, 4, 5);
+	G.add_edge(4, 1, 5);
+
+	G.add_edge(1, 5, 7);
+	G.add_edge(5, 1, 7);
+
+	G.add_edge(1, 6, 9);
+	G.add_edge(6, 1, 9);
+
+	G.add_edge(2, 3, 4);
+	G.add_edge(3, 2, 4);
+
+	G.add_edge(2, 4, 6);
+	G.add_edge(4, 2, 6);
+
+	G.add_edge(2, 5, 8);
+	G.add_edge(5, 2, 8);
+
+	G.add_edge(2, 6, 10);
+	G.add_edge(6, 2, 10);
+
 	G.add_edge(3, 4, 2);
-	G.add_edge(3, 6, 10);
-	G.add_edge(4, 5, 1);
-	G.add_edge(4, 6, 5);
-	G.add_edge(5, 6, 6);
+	G.add_edge(4, 3, 2);
+
+	G.add_edge(3, 5, 3);
+	G.add_edge(5, 3, 3);
+
+	G.add_edge(3, 6, 4);
+	G.add_edge(6, 3, 4);
+
+	G.add_edge(4, 5, 5);
+	G.add_edge(5, 4, 5);
+
+	G.add_edge(4, 6, 3);
+	G.add_edge(6, 4, 3);
+
+	G.add_edge(5, 6, 2);
+	G.add_edge(6, 5, 2);
+
+	G.print_edges();
+
+	cout << G.length_shortest_path(1, 6) << endl;
 	
-	cout << G.length_shortest_path(3, 6);
-	
+	cout << "Самый дальний пункт от своих прямых соседей: " << G.find_farthest_vertex() << endl;
 
 	
 	/*std::for_each(vertex.first, vertex.second, [](const auto& v) {
