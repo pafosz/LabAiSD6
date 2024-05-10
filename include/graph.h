@@ -2,14 +2,14 @@
 #define LAB_6_INCLUDE_GRAPH_H
 
 
-#include <iostream>
-#include <memory>
-#include <vector>
 #include <algorithm>
-#include <unordered_map>
-#include <iterator>
 #include <cfloat>
+#include <iostream>
+#include <iterator>
+#include <memory>
 #include <queue>
+#include <unordered_map>
+#include <vector>
 
 
 // Обход в ширину
@@ -97,7 +97,8 @@ bool Graph<Vertex, Distance>::remove_edge(const Edge& e) {
 	if (!has_edge(e)) return false;
 	auto& edges = _edges.at(e.from);
 
-	edges.erase(std::remove_if(edges.begin(), edges.end(), [e](const Edge& edge) { return (e.from == edge.from) && (e.to == edge.to); }), edges.end());
+	edges.erase(std::remove_if(edges.begin(), edges.end(), [e](const Edge& edge) 
+		{ return (e.from == edge.from) && (e.to == edge.to) && (e.distance == edge.distance); }), edges.end());
 
 	return true;
 }
@@ -283,7 +284,7 @@ Vertex Graph<Vertex, Distance>::find_farthest_vertex() {
 		Distance avg_distance = 0;
 		size_t num_neighbors = 0;
 		for (const auto& edge : exiting_edges(vertex)) {
-			avg_distance += edge.distance;
+			avg_distance += length_shortest_path(vertex, edge.to);
 			num_neighbors++;
 		}
 		if (num_neighbors > 0) {

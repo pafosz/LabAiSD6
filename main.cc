@@ -60,8 +60,16 @@ int main() {
 	G.add_edge(6, 5, 2);
 
 	G.print_edges();
+	/*Graph<int>::Edge e = { 5, 6, 2 };
+	G.remove_edge(6, 5);
+	G.remove_edge(e);
+	G.print_edges();*/
 
-	cout << G.length_shortest_path(1, 6) << endl;
+	cout << G.length_shortest_path(2, 1) << endl;
+	cout << G.length_shortest_path(2, 3) << endl;
+	cout << G.length_shortest_path(2, 4) << endl;
+	cout << G.length_shortest_path(2, 5) << endl;
+	cout << G.length_shortest_path(2, 6) << endl;
 	
 	cout << "Самый дальний пункт от своих прямых соседей: " << G.find_farthest_vertex() << endl;
 
